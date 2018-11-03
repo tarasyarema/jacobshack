@@ -1,0 +1,23 @@
+{
+  "name": "jacobshack",
+  "version": "1.0.0",
+  "description": ":3",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarasyarema/jacobshack.git"
+  },
+  "author": "tarasyarema",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tarasyarema/jacobshack/issues"
+  },
+  "homepage": "https://github.com/tarasyarema/jacobshack#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "morgan": "^1.9.1"
+  }
+}
