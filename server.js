@@ -1,11 +1,12 @@
 let express = require("express");
 let request = require("request");
 var logger = require("morgan");
+require('dotenv').config();
 
 let app = express();
 app.use(logger('dev'));
 
-const key = "apiKey=ha581372883634613097311886436280";
+const key = "apiKey=" + process.ENV.KEY;
 const base = "http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/ES/EUR/es-ES/"
 
 function get_value(data, key, value) {
