@@ -6,7 +6,7 @@ require('dotenv').config();
 let app = express();
 app.use(logger('dev'));
 
-const key = "apiKey=" + process.ENV.KEY;
+const key = "apiKey=" + process.env.KEY;
 const base = "http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/ES/EUR/es-ES/"
 
 function get_value(data, key, value) {
