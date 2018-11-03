@@ -5,6 +5,7 @@ require('dotenv').config();
 
 let app = express();
 app.use(logger('dev'));
+app.set('port', process.env.PORT || 3000);
 
 const key = "apiKey=" + process.env.KEY;
 const base = "http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/ES/EUR/es-ES/"
@@ -56,6 +57,6 @@ app.get("/top/:origin", (req, res) => {
 	});
 });
 
-app.listen(3000, () => {
-	console.log("http://localhost:3000");
+app.listen(app.get('port'), function () {
+	console.log('App runing -> http://localhost:' + app.get('port'));
 });
