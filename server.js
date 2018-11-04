@@ -45,15 +45,16 @@ app.get("/top/:origin", (req, res) => {
 		
 		while (all_dest.length < 4) {
 			let quote = quotes[i];
-			if (quote == undefined) continue;
 			let dest_id = quote["OutboundLeg"]["DestinationId"];
 			let tmp = get_value(places, "PlaceId", dest_id)[0];
+			
+			if (tmp["Type"] != "Station") continue;
 
 			if (all_dest.indexOf(tmp) == -1)
 				all_dest.push({
 					"price": quote["MinPrice"],
 					"name": tmp["Name"], 
-					"id": tmp["SkyscannerCode"]
+					"id": tmp["IataCode"]
 				});
 			
 			i = Math.floor(Math.random() * quotes.length); 

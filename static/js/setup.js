@@ -1,4 +1,6 @@
-const CUBE_SIZE = 8;
+const CUBE_SIZE = 10;
+const RAD = 6;
+const SEGMENTS = 32;
 
 let scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -47,67 +49,43 @@ let cube = new THREE.Mesh(cube_geometry, cube_material);
 cube.castShadow = true;
 cube.recieveShadow = true;
 cube.position.set(0, 0, 0);
-scene.add(cube);
+// scene.add(cube);
 
-// Plane setup
-/*
-let plane_geometry = new THREE.PlaneGeometry(100, 100, 8);
-let plane_material = new THREE.MeshPhongMaterial({ color: 0x222222 });
-let plane = new THREE.Mesh(plane_geometry, plane_material);
-plane.position.z = -10;
-plane.castShadow = false;
-plane.recieveShadow = true;
-scene.add(plane);
-*/
+
+let sphere = create_sphere(RAD, SEGMENTS);
+scene.add(sphere);
+
+function create_pos() {
+	return new THREE.Mesh(
+		new THREE.SphereGeometry(1, 8, 8),
+		new THREE.MeshPhongMaterial({
+			color: 0xff0000
+		})
+	);
+}
+
+function create_sphere(radius, segments) {
+	return new THREE.Mesh(
+		new THREE.SphereGeometry(radius, segments, segments),
+		new THREE.MeshPhongMaterial({
+			map: THREE.ImageUtils.loadTexture('textures/earth.jpg')
+		})
+	);
+}
+
+function get_position(lat, lon) {
+	let phi   = (90 - lat)*(Math.PI/180);
+	let theta = (lon + 180)*(Math.PI/180);
+
+	let x = -((RAD) * Math.sin(phi)*Math.cos(theta));
+	let z = ((RAD) * Math.sin(phi)*Math.sin(theta));
+	let y = ((RAD) * Math.cos(phi));
+
+	return new THREE.Vector3(x,y,z);
+}
 
 function on_window_resize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function load_font() {
-	let loader = new THREE.FontLoader();
-	
-	loader.load('js/helvetiker_regular.typeface.js', (res) => {
-		font = res;
-	      	create_text("hello!");
-	});
-}
-
-let height = 0.2;
-let size = 0.5;
-let curve_segments = 32;
-let bevel_thickness = 0.1;
-let bevel_size = 0.1;
-let bevel_segments = 3;
-let bevel_enabled = false;
-let font = undefined;
-let weight = "normal";
-
-function create_text(content) {
-	let text_geo = new THREE.TextGeometry(content, {
-      		font: font,
-		size: size,
-	      	height: height,
-	      	curveSegments: curve_segments,
-	      	weight: weight,
-		bevelThickness: bevel_thickness,
-      		bevelSize: bevel_size,
-      		bevelSegments: bevel_segments,
-      		bevelEnabled: bevel_enabled
-   	});
-
-    	text_geo.computeBoundingBox();
-    	text_geo.computeVertexNormals();
-  	
-	let material = new THREE.MeshLambertMaterial({ color: 0x0000ff })
-	let text = new THREE.Mesh(text_geo, material)
-    
-	text.position.set(0, 0, 10);
-	//-text_geo.boundingBox.max.x / 2, -text_geo.boundingBox.max.y / 2, -text_geo.boundingBox.max.z / 2)
-    	text.castShadow = true;
-    	scene.add(text);
-
-	return text;
 }

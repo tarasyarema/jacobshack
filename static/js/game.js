@@ -15,6 +15,8 @@ let POINTS = 0;
 let EVENT_LISTENERS_ENABLED = true;
 let Cube;
 
+let MARKERS = [];
+
 let left_down = false;
 let right_down = false;
 let up_down = false;
@@ -62,16 +64,16 @@ function update(Cube, camera) {
 
 	if (ROT && LEVEL_DATA != undefined) {
 		if (left_down) {
-			Cube.ry = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			Cube.ry = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
 			if (TRAVEL) DESTINATION = LEVEL_DATA[1];
 		} else if (right_down) {
-			Cube.ry = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			Cube.ry = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
 			if (TRAVEL) DESTINATION = LEVEL_DATA[2];
 		} else if (up_down) {
-			Cube.rx = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			Cube.rx = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
 			if (TRAVEL) DESTINATION = LEVEL_DATA[0];
 		} else if (down_down) {
-			Cube.rx = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			Cube.rx = +(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
 			if (TRAVEL) DESTINATION = LEVEL_DATA[3];
 		}
 	
@@ -83,6 +85,25 @@ function update(Cube, camera) {
 			ORIGIN_NAME = DESTINATION["name"];
 			DESTINATION = undefined;
 			
+			console.log(ORIGIN, geo[ORIGIN]);
+
+			
+			let phi = geo[ORIGIN][1] * Math.PI / 180;
+			let theta = ( 270 - geo[ORIGIN][0]) * Math.PI / 180;
+			let euler = new THREE.Euler(phi, theta, 0, 'XYZ');
+
+			let qstart = new THREE.Quaternion().copy(sphere.quaternion); // src quaternion
+			let qend = new THREE.Quaternion().setFromEuler(euler); //dst quaternion
+			let qtemp = new THREE.Quaternion();
+
+			let o = {t: 0};
+			new TWEEN.Tween(o).to({t: 1}, 2500)
+			      .onUpdate(function () {
+				THREE.Quaternion.slerp(qstart, qend, qtemp, o.t);
+				sphere.quaternion.copy( qtemp );
+			      })
+			      .start();
+						
 			$.get("/top/" + tmp, (data) => {
 				LEVEL_DATA = data["destinations"];
 				
@@ -142,6 +163,23 @@ function init() {
 	TIME = 0;
 	TRIP = [ ORIGIN ];
 
+	let phi = geo[ORIGIN][1] * Math.PI / 180;
+	let theta = ( 270 - geo[ORIGIN][0]) * Math.PI / 180;
+	let euler = new THREE.Euler(phi, theta, 0, 'XYZ');
+
+	let qstart = new THREE.Quaternion().copy(sphere.quaternion); // src quaternion
+	let qend = new THREE.Quaternion().setFromEuler(euler); //dst quaternion
+	let qtemp = new THREE.Quaternion();
+
+	let o = {t: 0};
+	new TWEEN.Tween(o).to({t: 1}, 2500)
+      		.onUpdate(function () {
+        		THREE.Quaternion.slerp(qstart, qend, qtemp, o.t);
+        		sphere.quaternion.copy( qtemp );
+      		}).start();
+
+	// let controls = new THREE.TrackballControls(camera);
+
 	$.get("/top/" + ORIGIN, (data) => {
 		LEVEL_DATA = data["destinations"]
 		
@@ -160,6 +198,14 @@ function init() {
 				tmp = LEVEL_DATA[i]["price"];
 				tmp_name = LEVEL_DATA[i]["name"];
 			}
+			/*	
+			let coord = geo[LEVEL_DATA[i]["id"]];
+			let tmp_pos = get_position(coord[0], coord[1]);
+
+			MARKERS.push(create_pos(1, 8));
+			MARKERS[i].position.set(tmp_pos["x"], tmp_pos["y"], tmp_pos["z"]);
+			scene.add(MARKERS[i]);
+			*/
 		}
 
 		MIN += tmp;
@@ -173,9 +219,13 @@ function init() {
 	window.addEventListener("resize", on_window_resize, false);
 	
 	let render = function () {
+		// controls.update();
 		requestAnimationFrame(render);
 		camera.lookAt(Cube.cube.position);
 		
+		// sphere.rotation.y = 0.001 * TIME;
+		TWEEN.update();
+
 		update(Cube, camera);
 		renderer.render(scene, camera);
 	}
