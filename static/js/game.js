@@ -1,13 +1,15 @@
 const MAX_ROT_TIME = 30;
 
 let LEVEL = 0;
-let LEVEL_DATA;
-let SELECT = null;
+let LEVEL_DATA = undefined;
 let ORIGIN = "BCN";
 let DESTINATION = null;
+let TRAVEL = false;
 let TIME;
+let TRIP;
 let ROT = false;
 let ROT_TIME = 0;
+let MIN = 0;
 let POINTS = 0;
 let EVENT_LISTENERS_ENABLED = true;
 let Cube;
@@ -52,26 +54,55 @@ function key_down_listener(event, Cube) {
 }
 
 function update(Cube, camera) {
-	if ((left_down || right_down || up_down || down_down) && ROT == false)
+	if ((left_down || right_down || up_down || down_down) && ROT == false) {
 		ROT = true;
+		TRAVEL = true;
+	}
 
-	if (ROT) {
+	if (ROT && LEVEL_DATA != undefined) {
 		if (left_down) {
 			Cube.ry = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
-			SELECT = 0;
-			DESTINATION = LEVEL_DATA[SELECT];
+			if (TRAVEL) DESTINATION = LEVEL_DATA[1];
 		} else if (right_down) {
 			Cube.ry = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
-			SELECT = 1;
-			DESTINATION = LEVEL_DATA[SELECT];
+			if (TRAVEL) DESTINATION = LEVEL_DATA[2];
 		} else if (up_down) {
 			Cube.rx = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
-			SELECT = 2;
-			DESTINATION = LEVEL_DATA[SELECT];
+			if (TRAVEL) DESTINATION = LEVEL_DATA[0];
 		} else if (down_down) {
 			Cube.rx = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
-			SELECT = 3;
-			DESTINATION = LEVEL_DATA[SELECT];
+			if (TRAVEL) DESTINATION = LEVEL_DATA[3];
+		}
+	
+		if (DESTINATION != undefined && TRAVEL) {
+			TRAVEL = false;
+			let tmp = DESTINATION["id"];
+			POINTS += DESTINATION["price"];
+			DESTINATION = undefined;
+			
+			$.get("/top/" + tmp, (data) => {
+				LEVEL_DATA = data["destinations"];
+				ORIGIN = tmp;
+			
+				$("#top").html("<div id=\"top\"style=\" top: 25% \">" + LEVEL_DATA[0]["name"] + "</div>");
+				$("#left").html("<div id=\"left\">" + LEVEL_DATA[1]["name"] + "</div>");
+				$("#points").html("<div>" + (MIN - POINTS) + " €</div>");
+				$("#right").html("<div id=\"right\">" + LEVEL_DATA[2]["name"] + "</div>");
+				$("#down").html("<div id=\"down\">" + LEVEL_DATA[3]["name"] + "</div>");
+				
+				let tmp_min = 10000;
+				let tmp_name;
+
+				for (let i = 0; i < LEVEL_DATA.length; ++i) {
+					if (LEVEL_DATA[i]["price"] < tmp_min) {
+						tmp_min = LEVEL_DATA[i]["price"];
+						tmp_name = LEVEL_DATA[i]["name"];
+					}
+				}
+
+				MIN += tmp_min;
+				TRIP.push(tmp_name);
+			});
 		}
 	}
 
@@ -105,16 +136,29 @@ function init() {
 	};
 
 	TIME = 0;
+	TRIP = [ ORIGIN ];
 
 	$.get("/top/" + ORIGIN, (data) => {
 		LEVEL_DATA = data["destinations"]
 
 		$("#cities").append("<div id=\"top\"style=\" top: 25% \">" + LEVEL_DATA[0]["name"] + "</div>");
 		$("#cities").append("<div id=\"left\">" + LEVEL_DATA[1]["name"] + "</div>");
-		$("#points").append("<div style=\" font-size: xx-large \">" + POINTS + "</div>");
+		$("#points").append("<div>" + (MIN - POINTS) + " €</div>");
 		$("#cities").append("<div id=\"right\">" + LEVEL_DATA[2]["name"] + "</div>");
 		$("#cities").append("<div id=\"down\">" + LEVEL_DATA[3]["name"] + "</div>");
 
+		let tmp = 10000;
+		let tmp_name;
+
+		for (let i = 0; i < LEVEL_DATA.length; ++i) {
+			if (LEVEL_DATA[i]["price"] < tmp) {
+				tmp = LEVEL_DATA[i]["price"];
+				tmp_name = LEVEL_DATA[i]["name"];
+			}
+		}
+
+		MIN += tmp;
+		TRIP.push(tmp_name);
 	});
 	
 	document.addEventListener('keydown', function (event){

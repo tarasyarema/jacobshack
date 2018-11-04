@@ -6,7 +6,7 @@ let renderer = new THREE.WebGLRenderer({ antialias: true });
 
 let texture_loader = new THREE.CubeTextureLoader();
 
-scene.background = new THREE.Color(0xffd8eb);
+scene.background = new THREE.Color(0x111111);
 renderer.shadowMapSoft = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap = THREE.PCFSoftShadowMap;

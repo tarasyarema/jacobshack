@@ -44,7 +44,8 @@ app.get("/top/:origin", (req, res) => {
 		let i = Math.floor(Math.random() * quotes.length); 
 		
 		while (all_dest.length < 4) {
-			let quote = quotes[i]; 
+			if (quote == undefined) continue;
+			let quote = quotes[i];
 			let dest_id = quote["OutboundLeg"]["DestinationId"];
 			let tmp = get_value(places, "PlaceId", dest_id)[0];
 
