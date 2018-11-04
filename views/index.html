@@ -9,6 +9,26 @@
 				overflow: hidden;
 			}	
 			
+			#title {
+				position: absolute;
+				z-index: 1;
+				text-align: center;
+				color: white;
+				font-size: 22px;
+				width: 100%;
+				top: 5%;
+			}
+			
+			#footer {
+				position: absolute;
+				z-index: 1;
+				text-align: center;
+				color: white;
+				font-size: 16px;
+				width: 100%;
+				top: 95%;
+			}
+
 			#container {
 				position: absolute;
 				width: 100%;
@@ -73,10 +93,17 @@
 		<script src="js/letters.js"></script>
 	</head>
 	<body>
+		<div id="title"></div>
 		<div id="container">
-			<div id="cities"></div>
+			<div id="cities">
+				<div id="top"></div>
+				<div id="left"></div>
+				<div id="right"></div>
+				<div id="down"></div>
+			</div>
 		</div>
-		<div id="points"></div>	
+		<div id="points"></div>
+		<div id="footer"></div>
 		<script src="js/3Dletters.js"></script>
 		<script src="js/setup.js"></script>
 		<script src="js/game.js"></script>

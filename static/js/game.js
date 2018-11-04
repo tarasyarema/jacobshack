@@ -1,8 +1,9 @@
-const MAX_ROT_TIME = 30;
+const MAX_ROT_TIME = 60;
 
 let LEVEL = 0;
 let LEVEL_DATA = undefined;
 let ORIGIN = "BCN";
+let ORIGIN_NAME = "Barcelona";
 let DESTINATION = null;
 let TRAVEL = false;
 let TIME;
@@ -78,18 +79,21 @@ function update(Cube, camera) {
 			TRAVEL = false;
 			let tmp = DESTINATION["id"];
 			POINTS += DESTINATION["price"];
+			ORIGIN = tmp;
+			ORIGIN_NAME = DESTINATION["name"];
 			DESTINATION = undefined;
 			
 			$.get("/top/" + tmp, (data) => {
 				LEVEL_DATA = data["destinations"];
-				ORIGIN = tmp;
-			
+				
+				$("#title").html("from <b>" + ORIGIN_NAME + "</b> to");
 				$("#top").html("<div id=\"top\"style=\" top: 25% \">" + LEVEL_DATA[0]["name"] + "</div>");
 				$("#left").html("<div id=\"left\">" + LEVEL_DATA[1]["name"] + "</div>");
 				$("#points").html("<div>" + (MIN - POINTS) + " €</div>");
 				$("#right").html("<div id=\"right\">" + LEVEL_DATA[2]["name"] + "</div>");
 				$("#down").html("<div id=\"down\">" + LEVEL_DATA[3]["name"] + "</div>");
-				
+				$("#footer").html("min: " + MIN + "€ ~ you: " + POINTS + " €");
+
 				let tmp_min = 10000;
 				let tmp_name;
 
@@ -140,13 +144,14 @@ function init() {
 
 	$.get("/top/" + ORIGIN, (data) => {
 		LEVEL_DATA = data["destinations"]
-
-		$("#cities").append("<div id=\"top\"style=\" top: 25% \">" + LEVEL_DATA[0]["name"] + "</div>");
-		$("#cities").append("<div id=\"left\">" + LEVEL_DATA[1]["name"] + "</div>");
-		$("#points").append("<div>" + (MIN - POINTS) + " €</div>");
-		$("#cities").append("<div id=\"right\">" + LEVEL_DATA[2]["name"] + "</div>");
-		$("#cities").append("<div id=\"down\">" + LEVEL_DATA[3]["name"] + "</div>");
-
+		
+		$("#title").html("from <b>" + ORIGIN_NAME + "</b> to");
+		$("#top").html(LEVEL_DATA[0]["name"]);
+		$("#left").html(LEVEL_DATA[1]["name"]);
+		$("#points").html((MIN - POINTS) + " €");
+		$("#right").html(LEVEL_DATA[2]["name"]);
+		$("#down").html(LEVEL_DATA[3]["name"]);
+		
 		let tmp = 10000;
 		let tmp_name;
 
