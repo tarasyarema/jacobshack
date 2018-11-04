@@ -1,11 +1,16 @@
 let express = require("express");
 let request = require("request");
-var logger = require("morgan");
+let logger = require("morgan");
+let path = require('path');
 require('dotenv').config();
 
 let app = express();
 app.use(logger('dev'));
 app.set('port', process.env.PORT || 3000);
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.use(express.static(path.join(__dirname, 'static')));
+app.set('views', path.join(__dirname, 'views'));
 
 const key = "apiKey=" + process.env.KEY;
 const base = "http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/ES/EUR/es-ES/"
@@ -18,7 +23,7 @@ function get_value(data, key, value) {
 
 
 app.get("/", (req, res) => {
-	res.send("Hi!");
+	res.render("index");
 });
 
 app.get("/top/:origin", (req, res) => {
@@ -38,7 +43,7 @@ app.get("/top/:origin", (req, res) => {
 		let all_dest = [];
 		let i = Math.floor(Math.random() * quotes.length); 
 		
-		while (all_dest.length < 10) {
+		while (all_dest.length < 4) {
 			let quote = quotes[i]; 
 			let dest_id = quote["OutboundLeg"]["DestinationId"];
 			let tmp = get_value(places, "PlaceId", dest_id)[0];

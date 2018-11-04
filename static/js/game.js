@@ -1,5 +1,10 @@
 const MAX_ROT_TIME = 30;
 
+let LEVEL = 0;
+let LEVEL_DATA;
+let SELECT = null;
+let ORIGIN = "BCN";
+let DESTINATION = null;
 let TIME;
 let ROT = false;
 let ROT_TIME = 0;
@@ -33,12 +38,16 @@ function key_down_listener(event, Cube) {
 
     	if (key === "ArrowLeft" && EVENT_LISTENERS_ENABLED) {
         	key_down_left(Cube);
-    	} else if (key === "ArrowRight" && EVENT_LISTENERS_ENABLED) {
+		EVENT_LISTENERS_ENABLED = false;
+	} else if (key === "ArrowRight" && EVENT_LISTENERS_ENABLED) {
         	key_down_right(Cube);
+		EVENT_LISTENERS_ENABLED = false;
     	} else if (key === "ArrowUp" && EVENT_LISTENERS_ENABLED) {
         	key_down_up(Cube)
+		EVENT_LISTENERS_ENABLED = false;
     	} else if (key === "ArrowDown" && EVENT_LISTENERS_ENABLED) {
         	key_down_down(Cube)
+		EVENT_LISTENERS_ENABLED = false;
     	}
 }
 
@@ -49,14 +58,20 @@ function update(Cube, camera) {
 	if (ROT) {
 		if (left_down) {
 			Cube.ry = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			SELECT = 0;
+			DESTINATION = LEVEL_DATA[SELECT];
 		} else if (right_down) {
 			Cube.ry = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
-		}
-		
-		if (up_down) {
+			SELECT = 1;
+			DESTINATION = LEVEL_DATA[SELECT];
+		} else if (up_down) {
 			Cube.rx = (ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			SELECT = 2;
+			DESTINATION = LEVEL_DATA[SELECT];
 		} else if (down_down) {
 			Cube.rx = -(ROT_TIME / MAX_ROT_TIME) * Math.PI / 2;
+			SELECT = 3;
+			DESTINATION = LEVEL_DATA[SELECT];
 		}
 	}
 
@@ -66,17 +81,19 @@ function update(Cube, camera) {
 	if (ROT_TIME == MAX_ROT_TIME) {
 		ROT = false;
 		ROT_TIME = 0;
+
 		left_down = false;
 		right_down = false;
 		up_down = false;
 		down_down = false;
+		
+		EVENT_LISTENERS_ENABLED = true;
+		
 		Cube.rx = 0;
 		Cube.ry = 0;
 	}
 	
-	if (ROT) 
-		++ROT_TIME;
-	
+	if (ROT) ++ROT_TIME;
 	++TIME;
 }
 
@@ -86,12 +103,20 @@ function init() {
 		rx: 0,
 		ry: 0
 	};
+
 	TIME = 0;
 
-	$.get("http://localhost:3000/top/BCN", (data) => {
-		alert(data);
-	});
+	$.get("/top/" + ORIGIN, (data) => {
+		LEVEL_DATA = data["destinations"]
 
+		$("#cities").append("<div id=\"top\"style=\" top: 25% \">" + LEVEL_DATA[0]["name"] + "</div>");
+		$("#cities").append("<div id=\"left\">" + LEVEL_DATA[1]["name"] + "</div>");
+		$("#points").append("<div style=\" font-size: xx-large \">" + POINTS + "</div>");
+		$("#cities").append("<div id=\"right\">" + LEVEL_DATA[2]["name"] + "</div>");
+		$("#cities").append("<div id=\"down\">" + LEVEL_DATA[3]["name"] + "</div>");
+
+	});
+	
 	document.addEventListener('keydown', function (event){
         	key_down_listener(event, Cube);
     	});

@@ -18,8 +18,10 @@
   "homepage": "https://github.com/tarasyarema/jacobshack#readme",
   "dependencies": {
     "dotenv": "^6.1.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.4",
     "morgan": "^1.9.1",
+    "path": "^0.12.7",
     "request": "^2.88.0"
   }
 }
